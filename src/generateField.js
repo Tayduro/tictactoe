@@ -22,4 +22,6 @@ function generateRows(rowsCount, colsCount) {
   }
 }
 
-generateRows(ROWS_COUNT, COLS_COUNT);
+export default function generateField() {
+  generateRows(ROWS_COUNT, COLS_COUNT);
+}
