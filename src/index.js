@@ -404,4 +404,4 @@ function ready() {
   checkWin();
 }
 
-document.addEventListener('DOMContentLoaded', ready)
+document.addEventListener('DOMContentLoaded', ready);
