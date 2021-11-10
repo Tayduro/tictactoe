@@ -5,9 +5,9 @@ let arrayArrayValueCell = [];
 let arraySavedMoves = [];
 let arrayCounter = [];
 let arraySavedCounters = [];
-let victoryCheck = 'game continues';
+const victoryCheck = 'game continues';
 
-function vertical(pointer, victoryCheckText, numberCells) {
+function vertical(pointer, victoryCheck, numberCells) {
   const stripLength = Math.sqrt(numberCells);
   for (let i = 0, y = 0; i !== stripLength; i += 1) {
     const arrayCells = [];
@@ -29,14 +29,14 @@ function vertical(pointer, victoryCheckText, numberCells) {
             arrayCells[x].classList.add('vertical');
           }
           winMessageGenerator(pointer);
+          return victoryCheck;
         }
       }
     }
   }
-  return victoryCheck;
 }
 
-function horizontal(pointer, victoryCheckText, numberCells) {
+function horizontal(pointer, victoryCheck, numberCells) {
   const stripLength = Math.sqrt(numberCells);
   for (let i = 0; i < numberCells; ) {
     const arrayCells = [];
@@ -56,14 +56,14 @@ function horizontal(pointer, victoryCheckText, numberCells) {
             arrayCells[x].classList.add('horizontal');
           }
           winMessageGenerator(pointer);
+          return victoryCheck;
         }
       }
     }
   }
-  return victoryCheck;
 }
 
-function diagonalRight(pointer, victoryCheckText, numberCells) {
+function diagonalRight(pointer, victoryCheck, numberCells) {
   const stripLength = Math.sqrt(numberCells);
   const arrayCells = [];
   for (let i = 0, y = 0; y !== stripLength; i += stripLength + 1, y += 1) {
@@ -82,13 +82,13 @@ function diagonalRight(pointer, victoryCheckText, numberCells) {
           arrayCells[x].classList.add('diagonal-right');
         }
         winMessageGenerator(pointer);
+        return victoryCheck;
       }
     }
   }
-  return victoryCheck;
 }
 
-function diagonalLeft(pointer, victoryCheckText, numberCells) {
+function diagonalLeft(pointer, victoryCheck, numberCells) {
   const stripLength = Math.sqrt(numberCells);
   const arrayCells = [];
   for (let i = stripLength - 1, y = 0; y !== stripLength; i += stripLength - 1, y += 1) {
@@ -107,10 +107,10 @@ function diagonalLeft(pointer, victoryCheckText, numberCells) {
           arrayCells[x].classList.add('diagonal-left');
         }
         winMessageGenerator(pointer);
+        return victoryCheck;
       }
     }
   }
-  return victoryCheck;
 }
 
 function saveCounter(Counter) {
@@ -141,7 +141,7 @@ function cellCount() {
   return numberCells;
 }
 
-function judge(pointer) {
+function judge(pointer, victoryCheck) {
   const numberCells = cellCount();
   horizontal(pointer, victoryCheck, numberCells);
   if (horizontal(pointer, victoryCheck, numberCells) === 'win') {
@@ -178,10 +178,10 @@ function restart() {
 }
 
 function checkWin() {
-  judge('ch');
-  judge('r');
+  judge('ch', victoryCheck);
+  judge('r', victoryCheck);
 
-  if (judge('ch') === 'game continues' && judge('r') === 'game continues') {
+  if (judge('ch', victoryCheck) === 'game continues' && judge('r', victoryCheck) === 'game continues') {
     document.querySelector('.won-message').innerHTML = '';
     document.querySelector('.won-title').classList.add('hidden');
 
@@ -404,4 +404,4 @@ function ready() {
   checkWin();
 }
 
-document.addEventListener('DOMContentLoaded', ready);
+document.addEventListener('DOMContentLoaded', ready)
