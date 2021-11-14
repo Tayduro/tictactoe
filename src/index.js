@@ -328,10 +328,8 @@ function rollback() {
   checkWin();
 }
 
-function renewalCell(event) {
-  if (event) {
-    const element = event.target;
-
+function renewalCell(element) {
+  if (element) {
     if (counter === 'x') {
       element.classList.add('ch');
     }
@@ -359,36 +357,36 @@ function renewalCell(event) {
   checkUndo();
 }
 
-function renewalCounter() {
+function renewalCounter(event) {
+  const element = event.target;
   if (
     document.querySelector('.won-message').innerHTML === `Toes won!` ||
     document.querySelector('.won-message').innerHTML === `Crosses won!`
   ) {
     return;
   }
+  if (!element.classList.contains('cell')) {
+    return;
+  }
   if (!counter) {
     counter = 'x';
   }
   if (counter === 'x') {
-    renewalCell(event);
+    renewalCell(element);
     counter = 'o';
     saveCounter('o');
     return;
   }
   if (counter === 'o') {
-    renewalCell(event);
+    renewalCell(element);
     counter = 'x';
     saveCounter('x');
   }
 }
 
 function eventAssignment() {
-  const rows = document.querySelector('.field').querySelectorAll('.row');
-  for (let i = 0; i < rows.length; i += 1) {
-    for (let j = 0; j < rows[i].querySelectorAll('.cell').length; j += 1) {
-      rows[i].querySelectorAll('.cell')[j].addEventListener('click', renewalCounter);
-    }
-  }
+  const field = document.querySelector('.field');
+  field.addEventListener('click', renewalCounter);
 }
 
 function CheckAndGeneration() {
