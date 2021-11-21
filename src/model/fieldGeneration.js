@@ -1,11 +1,16 @@
 import { checkWin } from './chekWin';
+import { fieldGeneration } from '../view/fieldUpdate';
+
 const sing = {
   counter: 'x',
 };
 export { sing };
 let arrayArrayValueCell = [];
 let arraySavedMoves = [];
-let arrayCounter = [];
+const arrayCounter = {
+  array: [],
+};
+export { arrayCounter };
 let arraySavedCounters = [];
 export const victoryCheckText = 'game continues';
 
@@ -78,30 +83,6 @@ export function fieldCleaning() {
   }
 }
 
-export function fieldGeneration() {
-  checkUndo();
-  checkRedo();
-  fieldCleaning();
-  if (localStorage.getItem('Cell') && localStorage.getItem('Cell') !== '[]') {
-    const saveCellStr = localStorage.getItem('Cell');
-    const saveCell = JSON.parse(saveCellStr);
-
-    for (let z = 0; z < saveCell[saveCell.length - 1].length; z += 1) {
-      const counterCell = `c-${z}`;
-
-      if (saveCell[saveCell.length - 1][z]) {
-        document.getElementById(counterCell).classList.add(saveCell[saveCell.length - 1][z]);
-      }
-    }
-  }
-  if (localStorage.getItem('Counter')) {
-    const saveCounterStr = localStorage.getItem('Counter');
-    const localSaveCounter = JSON.parse(saveCounterStr);
-    sing.counter = localSaveCounter[localSaveCounter.length - 1];
-    arrayCounter = localSaveCounter;
-  }
-}
-
 export function restart() {
   fieldCleaning();
 
@@ -110,7 +91,7 @@ export function restart() {
   if (localStorage.getItem('Cell') !== undefined) {
     localStorage.clear();
   }
-  arrayCounter = [];
+  arrayCounter.array = [];
   arrayArrayValueCell = [];
   sing.counter = 'x';
   document.querySelector('.undo-btn').disabled = true;
@@ -118,8 +99,8 @@ export function restart() {
 }
 
 export function saveCounter(Counter) {
-  arrayCounter.push(Counter);
-  const str = JSON.stringify(arrayCounter);
+  arrayCounter.array.push(Counter);
+  const str = JSON.stringify(arrayCounter.array);
   localStorage.setItem('Counter', str);
 }
 

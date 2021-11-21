@@ -1,6 +1,8 @@
 import generateField from './generateField';
 import { renewalCounter, checkWin } from './model/chekWin';
-import { fieldGeneration, restart, rollback, rollbackRollback } from './model/fieldGeneration';
+import { restart, rollback, rollbackRollback } from './model/fieldGeneration';
+// eslint-disable-next-line import/extensions
+import { fieldGeneration } from './view/fieldUpdate';
 
 function eventAssignment() {
   const field = document.querySelector('.field');
