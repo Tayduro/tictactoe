@@ -1,15 +1,15 @@
-import { victoryCheckText, sing, restart, renewalCell, saveCounter, cellCount, checkRedo } from './fieldGeneration';
+import { victoryCheckText, sign, pageState, renewalCell, saveCounter, cellCount, checkRedo } from './fieldGeneration';
+import { fieldUpdate } from '../view/fieldUpdate';
 
 export function winMessageGenerator(pointer) {
-  const array = document.querySelector('.won-title, .hidden');
-  array.classList.remove('hidden');
-  const wonMessage = document.querySelector('.won-message');
+  pageState.hidden = false;
   if (pointer === 'r') {
-    wonMessage.innerHTML = `Toes won!`;
+    pageState.wonMessage = 'Toes won';
   }
   if (pointer === 'ch') {
-    wonMessage.innerHTML = `Crosses won!`;
+    pageState.wonMessage = 'Crosses won!';
   }
+  fieldUpdate(pageState);
 }
 
 export function vertical(pointer, victoryCheck, numberCells) {
@@ -31,8 +31,10 @@ export function vertical(pointer, victoryCheck, numberCells) {
         }
         if (localVictoryCheck === 'win') {
           for (let x = 0; x < stripLength; x += 1) {
-            arrayCells[x].classList.add('win');
-            arrayCells[x].classList.add('vertical');
+            pageState.victoryClass = 'win';
+            pageState.victoryPosition = 'vertical';
+            pageState.currentItem = arrayCells[x];
+            fieldUpdate(pageState);
           }
           winMessageGenerator(pointer);
           return localVictoryCheck;
@@ -60,8 +62,10 @@ export function horizontal(pointer, victoryCheck, numberCells) {
         }
         if (localVictoryCheck === 'win') {
           for (let x = 0; x < stripLength; x += 1) {
-            arrayCells[x].classList.add('win');
-            arrayCells[x].classList.add('horizontal');
+            pageState.victoryClass = 'win';
+            pageState.victoryPosition = 'horizontal';
+            pageState.currentItem = arrayCells[x];
+            fieldUpdate(pageState);
           }
           winMessageGenerator(pointer);
           return localVictoryCheck;
@@ -88,8 +92,10 @@ export function diagonalRight(pointer, victoryCheck, numberCells) {
       }
       if (localVictoryCheck === 'win') {
         for (let x = 0; x < stripLength; x += 1) {
-          arrayCells[x].classList.add('win');
-          arrayCells[x].classList.add('diagonal-right');
+          pageState.victoryClass = 'win';
+          pageState.victoryPosition = 'diagonal-right';
+          pageState.currentItem = arrayCells[x];
+          fieldUpdate(pageState);
         }
         winMessageGenerator(pointer);
         return localVictoryCheck;
@@ -115,8 +121,10 @@ export function diagonalLeft(pointer, victoryCheck, numberCells) {
       }
       if (localVictoryCheck === 'win') {
         for (let x = 0; x < stripLength; x += 1) {
-          arrayCells[x].classList.add('win');
-          arrayCells[x].classList.add('diagonal-left');
+          pageState.victoryClass = 'win';
+          pageState.victoryPosition = 'diagonal-left';
+          pageState.currentItem = arrayCells[x];
+          fieldUpdate(pageState);
         }
         winMessageGenerator(pointer);
         return localVictoryCheck;
@@ -152,9 +160,9 @@ export function checkWin() {
   judge('r', victoryCheckText);
 
   if (judge('ch', victoryCheckText) === 'game continues' && judge('r', victoryCheckText) === 'game continues') {
-    document.querySelector('.won-message').innerHTML = '';
-    document.querySelector('.won-title').classList.add('hidden');
-
+    pageState.wonMessage = '';
+    pageState.hidden = true;
+    fieldUpdate(pageState);
     const numberCells = cellCount();
 
     let indicatorDraw = 'true';
@@ -165,16 +173,12 @@ export function checkWin() {
         indicatorDraw = 'false';
       }
     }
-
     if (indicatorDraw === 'true') {
-      const array = document.querySelector('.won-title, .hidden');
-      array.classList.remove('hidden');
-      const RestartGame = document.querySelector('.restart-btn, btn');
-      RestartGame.addEventListener('click', restart);
-      const wonMessage = document.querySelector('.won-message');
-      wonMessage.innerHTML = `It's a draw!`;
+      pageState.hidden = false;
+      pageState.wonMessage = "It's a draw!";
     }
   }
+  fieldUpdate(pageState);
 }
 
 export function renewalCounter(event) {
@@ -191,18 +195,18 @@ export function renewalCounter(event) {
   if (!element.classList.contains('cell')) {
     return;
   }
-  if (!sing.counter) {
-    sing.counter = 'x';
+  if (!sign.counter) {
+    sign.counter = 'x';
   }
-  if (sing.counter === 'x') {
+  if (sign.counter === 'x') {
     renewalCell(element);
-    sing.counter = 'o';
+    sign.counter = 'o';
     saveCounter('o');
     return;
   }
-  if (sing.counter === 'o') {
+  if (sign.counter === 'o') {
     renewalCell(element);
-    sing.counter = 'x';
+    sign.counter = 'x';
     saveCounter('x');
   }
 }

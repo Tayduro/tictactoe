@@ -1,10 +1,23 @@
 import { checkWin } from './chekWin';
-import { fieldGeneration } from '../view/fieldUpdate';
+import { fieldUpdate } from '../view/fieldUpdate';
 
-const sing = {
+const sign = {
   counter: 'x',
 };
-export { sing };
+export { sign };
+
+const pageState = {
+  currentItem: undefined,
+  currentSign: undefined,
+  victoryClass: undefined,
+  victoryPosition: undefined,
+  fieldCleaning: false,
+  wonMessage: undefined,
+  hidden: true,
+  undoBtnDisabled: true,
+  redoBtnDisabled: true,
+};
+export { pageState };
 let arrayArrayValueCell = [];
 let arraySavedMoves = [];
 const arrayCounter = {
@@ -16,20 +29,20 @@ export const victoryCheckText = 'game continues';
 
 export function checkRedo() {
   if (localStorage.getItem('savedMoves') && localStorage.getItem('savedMoves') !== '[]') {
-    const arrayButton = document.querySelector('.redo-btn');
-    arrayButton.disabled = false;
+    pageState.redoBtnDisabled = false;
   } else {
-    document.querySelector('.redo-btn').disabled = true;
+    pageState.redoBtnDisabled = true;
   }
+  fieldUpdate(pageState);
 }
 
 export function checkUndo() {
   if (localStorage.getItem('Cell') && localStorage.getItem('Cell') !== '[]') {
-    const arrayButton = document.querySelector('.undo-btn');
-    arrayButton.disabled = false;
+    pageState.undoBtnDisabled = false;
   } else {
-    document.querySelector('.undo-btn').disabled = true;
+    pageState.undoBtnDisabled = true;
   }
+  fieldUpdate(pageState);
 }
 
 export function cellCount() {
@@ -43,14 +56,27 @@ export function cellCount() {
   return numberCells;
 }
 
+export function getItem(item) {
+  const saveElementStr = localStorage.getItem(item);
+  return JSON.parse(saveElementStr);
+}
+
+function setItem(item, value) {
+  const strElement = JSON.stringify(value);
+  localStorage.setItem(item, strElement);
+}
+
 export function renewalCell(element) {
   if (element) {
-    if (sing.counter === 'x') {
-      element.classList.add('ch');
+    if (sign.counter === 'x') {
+      pageState.currentItem = element;
+      pageState.currentSign = 'ch';
     }
-    if (sing.counter === 'o') {
-      element.classList.add('r');
+    if (sign.counter === 'o') {
+      pageState.currentItem = element;
+      pageState.currentSign = 'r';
     }
+    fieldUpdate(pageState);
   }
   checkWin();
 
@@ -62,105 +88,112 @@ export function renewalCell(element) {
   }
 
   if (localStorage.getItem('Cell')) {
-    const saveCellStr = localStorage.getItem('Cell');
-    arrayArrayValueCell = JSON.parse(saveCellStr);
+    arrayArrayValueCell = getItem('Cell');
   }
   arrayArrayValueCell.push(arrayValueCell);
-  const str = JSON.stringify(arrayArrayValueCell);
-  localStorage.setItem('Cell', str);
+  setItem('Cell', arrayArrayValueCell);
 
   checkUndo();
 }
 
 export function fieldCleaning() {
-  const rows = document.querySelector('.field').querySelectorAll('.row');
-  for (let i = 0; i < rows.length; i += 1) {
-    for (let j = 0; j < rows[i].querySelectorAll('.cell').length; j += 1) {
-      for (let z = 3; z !== 0; z -= 1) {
-        rows[i].querySelectorAll('.cell')[j].classList.remove(rows[i].querySelectorAll('.cell')[j].classList[z]);
-      }
-    }
-  }
+  pageState.fieldCleaning = true;
+  fieldUpdate(pageState);
 }
 
 export function restart() {
   fieldCleaning();
-
-  document.querySelector('.won-message').innerHTML = '';
-  document.querySelector('.won-title').classList.add('hidden');
+  pageState.wonMessage = '';
+  pageState.hidden = true;
+  fieldUpdate(pageState);
   if (localStorage.getItem('Cell') !== undefined) {
     localStorage.clear();
   }
+  fieldUpdate(pageState);
   arrayCounter.array = [];
   arrayArrayValueCell = [];
-  sing.counter = 'x';
-  document.querySelector('.undo-btn').disabled = true;
+  sign.counter = 'x';
+
+  pageState.undoBtnDisabled = true;
+  fieldUpdate(pageState);
   checkRedo();
 }
 
 export function saveCounter(Counter) {
   arrayCounter.array.push(Counter);
-  const str = JSON.stringify(arrayCounter.array);
-  localStorage.setItem('Counter', str);
+  setItem('Counter', arrayCounter.array);
+}
+
+export function fieldGeneration() {
+  checkUndo();
+  checkRedo();
+  fieldCleaning();
+  fieldUpdate(pageState);
+  if (localStorage.getItem('Cell') && localStorage.getItem('Cell') !== '[]') {
+    const saveCell = getItem('Cell');
+
+    for (let z = 0; z < saveCell[saveCell.length - 1].length; z += 1) {
+      const counterCell = `c-${z}`;
+
+      if (saveCell[saveCell.length - 1][z]) {
+        pageState.currentItem = document.getElementById(counterCell);
+        pageState.currentSign = saveCell[saveCell.length - 1][z];
+        fieldUpdate(pageState);
+      }
+    }
+  }
+  if (localStorage.getItem('Counter')) {
+    const localSaveCounter = getItem('Counter');
+    sign.counter = localSaveCounter[localSaveCounter.length - 1];
+    arrayCounter.array = localSaveCounter;
+  }
 }
 
 export function rollbackRollback() {
-  const localArraySavedMoves = JSON.parse(localStorage.getItem('savedMoves'));
+  const localArraySavedMoves = getItem('savedMoves');
   const lastMoveData = localArraySavedMoves.pop();
-  const strSavedMoves = JSON.stringify(localArraySavedMoves);
-  localStorage.setItem('savedMoves', strSavedMoves);
-  const arrayCells = JSON.parse(localStorage.getItem('Cell'));
-  arrayCells.push(lastMoveData);
-  const strArrayCell = JSON.stringify(arrayCells);
-  localStorage.setItem('Cell', strArrayCell);
+  setItem('savedMoves', localArraySavedMoves);
 
-  const localArraySavedCounters = JSON.parse(localStorage.getItem('savedCounters'));
+  const arrayCells = getItem('Cell');
+  arrayCells.push(lastMoveData);
+  setItem('Cell', arrayCells);
+
+  const localArraySavedCounters = getItem('savedCounters');
   const lastCountersData = localArraySavedCounters.pop();
-  const strArraySavedCounters = JSON.stringify(localArraySavedCounters);
-  localStorage.setItem('savedCounters', strArraySavedCounters);
-  const arrayCounters = JSON.parse(localStorage.getItem('Counter'));
+  setItem('savedCounters', localArraySavedCounters);
+
+  const arrayCounters = getItem('Counter');
   arrayCounters.push(lastCountersData);
-  const strArrayCounters = JSON.stringify(arrayCounters);
-  localStorage.setItem('Counter', strArrayCounters);
+  setItem('Counter', arrayCounters);
 
   fieldGeneration();
   checkWin();
 }
 
 export function rollback() {
-  const saveCellStr = localStorage.getItem('Cell');
-  const saveCell = JSON.parse(saveCellStr);
-  const saveCounterStr = localStorage.getItem('Counter');
-  const localSaveCounter = JSON.parse(saveCounterStr);
+  const saveCell = getItem('Cell');
+  const localSaveCounter = getItem('Counter');
+
   arraySavedMoves = saveCell.pop();
   arraySavedCounters = localSaveCounter.pop();
 
-  const strCell = JSON.stringify(saveCell);
-  localStorage.setItem('Cell', strCell);
-  const strCounter = JSON.stringify(localSaveCounter);
-  localStorage.setItem('Counter', strCounter);
+  setItem('Cell', saveCell);
+  setItem('Counter', localSaveCounter);
 
   if (!localStorage.getItem('savedMoves')) {
-    const strSaveMoves = JSON.stringify([]);
-    localStorage.setItem('savedMoves', strSaveMoves);
+    setItem('savedMoves', []);
   }
-
   if (!localStorage.getItem('savedCounters')) {
-    const strSaveCounter = JSON.stringify([]);
-    localStorage.setItem('savedCounters', strSaveCounter);
+    setItem('savedCounters', []);
   }
 
-  const saveMovesStr = localStorage.getItem('savedMoves');
-  const saveMoves = JSON.parse(saveMovesStr);
+  const saveMoves = getItem('savedMoves');
   saveMoves.push(arraySavedMoves);
-  const NewStrMoves = JSON.stringify(saveMoves);
-  localStorage.setItem('savedMoves', NewStrMoves);
+  setItem('savedMoves', saveMoves);
 
-  const saveCountersStr = localStorage.getItem('savedCounters');
-  const saveCounters = JSON.parse(saveCountersStr);
+  const saveCounters = getItem('savedCounters');
   saveCounters.push(arraySavedCounters);
-  const strSaveCounter = JSON.stringify(saveCounters);
-  localStorage.setItem('savedCounters', strSaveCounter);
+  setItem('savedCounters', saveCounters);
 
   fieldGeneration();
   checkRedo();
